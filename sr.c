@@ -89,9 +89,7 @@ void A_output(struct msg message)
 
     /* put packet in window buffer */
     /* windowlast will always be 0 for alternating bit; but not for GoBackN */
-    windowlast = (windowlast + 1) % WINDOWSIZE; 
-    buffer[windowlast] = sendpkt;
-    windowcount++;
+
 
     /* send out packet */
     if (TRACE > 0)
