@@ -266,6 +266,7 @@ void B_init(void)
 /* Note that with simplex transfer from a-to-B, there is no B_output() */
 void B_output(struct msg message)  
 {
+  
 }
 
 /* called when B's timer goes off */
