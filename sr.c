@@ -87,19 +87,19 @@ void A_output(struct msg message)
       sendpkt.payload[i] = message.data[i];
     sendpkt.checksum = ComputeChecksum(sendpkt); 
 
+  
     /* put packet in window buffer */
     /* windowlast will always be 0 for alternating bit; but not for GoBackN */
-
+    buffer[sendpkt.seqnum] = sendpkt;    //
+    acked[sendpkt.seqnum] = false;                    // still not be sure
+    timer_running[sendpkt.seqnum] = true;              // open time start
+    timer_start[sendpkt.seqnum] = get_sim_time();      // Record the start time of the timer
 
     /* send out packet */
     if (TRACE > 0)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
     tolayer3 (A, sendpkt);
-    
-    acked[sendpkt.seqnum] = false;                    // still not be sure
-    timer_running[sendpkt.seqnum] = true;              // open time start
-    timer_start[sendpkt.seqnum] = get_sim_time();      // Record the start time of the timer
-
+    windowcount++;
 
     /* start timer if first packet in window */
     if (windowcount == 1)
@@ -154,19 +154,26 @@ void A_input(struct pkt packet)
 void A_timerinterrupt(void)
 {
   int i;
+  float current_time = get_sim_time();
 
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
 
-  for(i=0; i<windowcount; i++) {
-
-    if (TRACE > 0)
+  for(i=0; i<SEQSPACE; i++) {
+    if (!acked[i] && timer_running[i]) {
+      if (current_time - timer_start[i] >= RTT) {
+        if (TRACE > 0)
       printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
+      
+      tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
+      packets_resent++;
+      if (i==0) starttimer(A,RTT);
+      }
 
-    tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
-    packets_resent++;
-    if (i==0) starttimer(A,RTT);
+    }
+    
   }
+  starttimer(A, 1.0);
 }       
 
 
