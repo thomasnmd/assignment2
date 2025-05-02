@@ -115,8 +115,6 @@ void A_output(struct msg message)
 */
 void A_input(struct pkt packet)
 {
-  int ackcount = 0;
-  int i;
 
   /* if received ACK is not corrupted */ 
   if (!IsCorrupted(packet)) {
@@ -175,6 +173,7 @@ void A_timerinterrupt(void)
 /* entity A routines are called. You can use it to do any initialization */
 void A_init(void)
 {
+  int i;  
   /* initialise A's window, buffer and sequence number */
   A_nextseqnum = 0;  /* A starts with seq num 0, do not change this */
   windowfirst = 0;
@@ -183,7 +182,8 @@ void A_init(void)
 		     so initially this is set to -1
 		   */
   windowcount = 0;
-  for (int i = 0; i < SEQSPACE; i++) {
+
+  for (i = 0; i < SEQSPACE; i++) {
     acked[i] = false;             
     timer_running[i] = false;     
     timer_start[i] = 0.0;         
@@ -205,6 +205,7 @@ void B_input(struct pkt packet)
 {
   struct pkt sendpkt;
   int i;
+  int last_ack;
 
   /* Check if packet is not corrupted */
   if (!IsCorrupted(packet)) {
@@ -239,14 +240,14 @@ void B_input(struct pkt packet)
       /* Packet is outside window: discard but resend ACK for last valid */
       if (TRACE > 0)
         printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
-      int last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
+      last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
       sendpkt.acknum = last_ack;
     }
   } else {
     /* Packet is corrupted: send duplicate ACK */
     if (TRACE > 0)
       printf("----B: packet corrupted, sending duplicate ACK\n");
-    int last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
+    last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
     sendpkt.acknum = last_ack;
   }
 
@@ -269,9 +270,10 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
+  int i;
   expectedseqnum = 0;
   B_nextseqnum = 1;
-    for (int i = 0; i < SEQSPACE; i++) {
+    for (i = 0; i < SEQSPACE; i++) {
     received[i] = false;
   }
 }
