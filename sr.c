@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "emulator.h"
-#include "gbn.h"
+#include "sr.h"
+
 
 /* ******************************************************************
    Go Back N protocol.  Adapted from J.F.Kurose
@@ -36,10 +37,6 @@ int ComputeChecksum(struct pkt packet)
 {
   int checksum = 0;
   int i;
-
-
-  
-
   checksum = packet.seqnum;
   checksum += packet.acknum;
   for ( i=0; i<20; i++ ) 
@@ -90,21 +87,17 @@ void A_output(struct msg message)
   
     /* put packet in window buffer */
     /* windowlast will always be 0 for alternating bit; but not for GoBackN */
-    buffer[sendpkt.seqnum] = sendpkt;    //
-    acked[sendpkt.seqnum] = false;                    // still not be sure
-    timer_running[sendpkt.seqnum] = true;              // open time start
-    timer_start[sendpkt.seqnum] = get_sim_time();      // Record the start time of the timer
+    buffer[sendpkt.seqnum] = sendpkt;    
+    acked[sendpkt.seqnum] = false;                    /*still not be sure*/ 
+    timer_running[sendpkt.seqnum] = true;              /*open time start*/ 
+    timer_start[sendpkt.seqnum] = get_sim_time();      /*Record the start time of the timer*/ 
 
     /* send out packet */
     if (TRACE > 0)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
     tolayer3 (A, sendpkt);
     windowcount++;
-
-    /* start timer if first packet in window */
-    if (windowcount == 1)
-      starttimer(A,RTT);
-
+    starttimer(A, 1.0);
     /* get next sequence number, wrap back to 0 */
     A_nextseqnum = (A_nextseqnum + 1) % SEQSPACE;  
   }
