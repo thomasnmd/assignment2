@@ -203,6 +203,8 @@ void A_init(void)
 
 static int expectedseqnum; /* the sequence number expected next by the receiver */
 static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
+static struct pkt recv_buffer[SEQSPACE]; /*buffer to store out-of-order packets*/
+static bool received[SEQSPACE];    /*track which seqnums have been received*/
 
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
@@ -211,29 +213,48 @@ void B_input(struct pkt packet)
   struct pkt sendpkt;
   int i;
 
-  /* if not corrupted and received packet is in order */
-  if  ( (!IsCorrupted(packet))  && (packet.seqnum == expectedseqnum) ) {
+  /* Check if packet is not corrupted */
+  if (!IsCorrupted(packet)) {
+
+    /* Check if packet is within the receive window */
+    int in_window = 0;
+    if (expectedseqnum + WINDOWSIZE < SEQSPACE) {
+      in_window = (packet.seqnum >= expectedseqnum && packet.seqnum < expectedseqnum + WINDOWSIZE);
+    } else {
+      in_window = (packet.seqnum >= expectedseqnum || packet.seqnum < (expectedseqnum + WINDOWSIZE) % SEQSPACE);
+    }
+
+    if (in_window) {
+      if (TRACE > 0)
+        printf("----B: packet %d correctly received (within window), sending ACK\n", packet.seqnum);
+      packets_received++;
+
+      /* Store the packet and mark as received */
+      recv_buffer[packet.seqnum] = packet;
+      received[packet.seqnum] = true;
+
+      /* Deliver all in-order packets from expectedseqnum */
+      while (received[expectedseqnum]) {
+        tolayer5(B, recv_buffer[expectedseqnum].payload);
+        received[expectedseqnum] = false;
+        expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
+      }
+
+      /* Send ACK for this packet */
+      sendpkt.acknum = packet.seqnum;
+    } else {
+      /* Packet is outside window: discard but resend ACK for last valid */
+      if (TRACE > 0)
+        printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
+      int last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
+      sendpkt.acknum = last_ack;
+    }
+  } else {
+    /* Packet is corrupted: send duplicate ACK */
     if (TRACE > 0)
-      printf("----B: packet %d is correctly received, send ACK!\n",packet.seqnum);
-    packets_received++;
-
-    /* deliver to receiving application */
-    tolayer5(B, packet.payload);
-
-    /* send an ACK for the received packet */
-    sendpkt.acknum = expectedseqnum;
-
-    /* update state variables */
-    expectedseqnum = (expectedseqnum + 1) % SEQSPACE;        
-  }
-  else {
-    /* packet is corrupted or out of order resend last ACK */
-    if (TRACE > 0) 
-      printf("----B: packet corrupted or not expected sequence number, resend ACK!\n");
-    if (expectedseqnum == 0)
-      sendpkt.acknum = SEQSPACE - 1;
-    else
-      sendpkt.acknum = expectedseqnum - 1;
+      printf("----B: packet corrupted, sending duplicate ACK\n");
+    int last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
+    sendpkt.acknum = last_ack;
   }
 
   /* create packet */
@@ -257,6 +278,9 @@ void B_init(void)
 {
   expectedseqnum = 0;
   B_nextseqnum = 1;
+    for (int i = 0; i < SEQSPACE; i++) {
+    received[i] = false;
+  }
 }
 
 /******************************************************************************
