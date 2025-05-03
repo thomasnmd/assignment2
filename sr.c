@@ -194,7 +194,6 @@ void B_input(struct pkt packet)
 {
   struct pkt sendpkt;
   int i;
-  int last_ack;
 
   /* Check if packet is not corrupted */
   if (!IsCorrupted(packet)) {
