@@ -203,9 +203,9 @@ void B_input(struct pkt packet)
       packets_received++;
 
       if (received[packet.seqnum] == false) {
-        received[packets.seqnum] == true
+        received[packet.seqnum] = true;
         for (i=0; i < 20; i++) {
-          recvpkt [packet.seqnum].payload[i] = packet.payload[i];
+          recvpkt[packet.seqnum].payload[i] = packet.payload[i];
         }
       }
       
@@ -220,22 +220,18 @@ void B_input(struct pkt packet)
 
       for ( i=0; i<20 ; i++ )    
       sendpkt.payload[i] = '0';   
-      /* Send ACK for this packet */
-      sendpkt.checksum = ComputeChecksum(sendpkt);
-      tolayer3(B,sendpkt);
-     else 
       /* Packet is outside window: discard but resend ACK for last valid */
       if (TRACE > 0)
         printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
 
-    
- 
   /* computer checksum */
   sendpkt.checksum = ComputeChecksum(sendpkt); 
   /* send out packet */
   tolayer3 (B, sendpkt);
   }
 }
+
+
 
 /* the following routine will be called once (only) before any other */
 /* entity B routines are called. You can use it to do any initialization */
@@ -248,6 +244,7 @@ void B_init(void)
     received[i] = false;
   }
 }
+
 
 /******************************************************************************
  * The following functions need be completed only for bi-directional messages *
