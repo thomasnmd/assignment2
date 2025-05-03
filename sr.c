@@ -62,16 +62,14 @@ static int windowcount;                /* the number of packets currently awaiti
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
 
 static bool acked[SEQSPACE];
-static bool timer_running[SEQSPACE];
-static float timer_start[SEQSPACE];
+
 
 
 /* called from layer 5 (application layer), passed the message to be sent to other side */
 void A_output(struct msg message)
 {
-  struct pkt sendpkt;
   int i;
-
+  struct pkt sendpkt;
   /* if not blocked waiting on ACK */
   if ( windowcount < WINDOWSIZE) {
     if (TRACE > 1)
@@ -89,8 +87,7 @@ void A_output(struct msg message)
     /* windowlast will always be 0 for alternating bit; but not for GoBackN */
     buffer[sendpkt.seqnum] = sendpkt;    
     acked[sendpkt.seqnum] = false;                    /*still not be sure*/ 
-    timer_running[sendpkt.seqnum] = true;              /*open time start*/ 
-    timer_start[sendpkt.seqnum] = get_sim_time();      /*Record the start time of the timer*/ 
+
 
     /* send out packet */
     if (TRACE > 0)
@@ -123,7 +120,7 @@ void A_input(struct pkt packet)
     total_ACKs_received++;
 
     acked[packet.acknum] = true;
-    timer_running[packet.acknum] = false;  
+
 
     /*check if wincount bigger than the next*/
     while (windowcount > 0 && acked[buffer[windowfirst].seqnum]) {
@@ -136,8 +133,7 @@ void A_input(struct pkt packet)
     }
 
   }
-  else 
-    if (TRACE > 0)
+  else if (TRACE > 0)
       printf ("----A: corrupted ACK is received, do nothing!\n");
 }
 
@@ -145,26 +141,19 @@ void A_input(struct pkt packet)
 void A_timerinterrupt(void)
 {
   int i;
-  float current_time = get_sim_time();
-
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
 
   for(i=0; i<SEQSPACE; i++) {
-    if (!acked[i] && timer_running[i]) {
-      if (current_time - timer_start[i] >= RTT) {
-        if (TRACE > 0)
+    if (!acked[i]) {
+      if (TRACE > 0)
       printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
-      
       tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
       packets_resent++;
-      if (i==0) starttimer(A,RTT);
-      }
-
     }
     
   }
-  starttimer(A, 1.0);
+  starttimer(A,RTT);
 }       
 
 
@@ -185,8 +174,7 @@ void A_init(void)
 
   for (i = 0; i < SEQSPACE; i++) {
     acked[i] = false;             
-    timer_running[i] = false;     
-    timer_start[i] = 0.0;         
+       
   }
 }
 

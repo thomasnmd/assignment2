@@ -4,7 +4,7 @@ extern void A_input(struct pkt);
 extern void B_input(struct pkt);
 extern void A_output(struct msg);
 extern void A_timerinterrupt(void);
-extern float get_sim_time(void);
+
 
 
 /* included for extension to bidirectional communication */
