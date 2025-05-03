@@ -56,7 +56,7 @@ bool IsCorrupted(struct pkt packet)
 
 /********* Sender (A) variables and functions ************/
 
-static struct pkt buffer[WINDOWSIZE];  /* array for storing packets waiting for ACK */
+static struct pkt buffer[SEQSPACE];  /* array for storing packets waiting for ACK */
 static int windowfirst, windowlast;    /* array indexes of the first/last packet awaiting ACK */
 static int windowcount;                /* the number of packets currently awaiting an ACK */
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
@@ -118,16 +118,13 @@ void A_input(struct pkt packet)
     if (TRACE > 0)
       printf("----A: uncorrupted ACK %d is received\n",packet.acknum);
     total_ACKs_received++;
-
     acked[packet.acknum] = true;
-
-
     /*check if wincount bigger than the next*/
-    while (windowcount > 0 && acked[buffer[windowfirst].seqnum]) {
-      if (TRACE > 0)
+    while (windowcount > 0 && acked[windowfirst]) {
+      if (TRACE > 0) {
         printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);
-
-      acked[buffer[windowfirst].seqnum] = false;  
+          }
+        acked[windowfirst] = false;  
       windowfirst = (windowfirst + 1) % WINDOWSIZE;  
       windowcount--;                               
     }
