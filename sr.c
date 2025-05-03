@@ -125,7 +125,7 @@ void A_input(struct pkt packet)
         printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);
           }
         acked[windowfirst] = false;  
-      windowfirst = (windowfirst + 1) % WINDOWSIZE;  
+      windowfirst = (windowfirst + 1) % SEQSPACE;  
       windowcount--;                               
     }
 
@@ -239,8 +239,7 @@ void B_input(struct pkt packet)
   }
 
   /* create packet */
-  sendpkt.seqnum = B_nextseqnum;
-  B_nextseqnum = (B_nextseqnum + 1) % 2;
+  sendpkt.seqnum = 0;
     
   /* we don't have any data to send.  fill payload with 0's */
   for ( i=0; i<20 ; i++ ) 
