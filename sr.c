@@ -119,7 +119,8 @@ void A_input(struct pkt packet)
   if (!IsCorrupted(packet)) {
     if (TRACE > 0)
       printf("----A: uncorrupted ACK %d is received\n",packet.acknum);
-    return;
+    total_ACKs_received++;
+    acked[packet.acknum] = true;
 
     /*check if wincount bigger than the next*/
     while (windowcount > 0 && acked[windowfirst]) {
