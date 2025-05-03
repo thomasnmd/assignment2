@@ -204,13 +204,12 @@ void B_input(struct pkt packet)
 
       if (received[packet.seqnum] == false) {
         received[packet.seqnum] = true;
-        for (i=0; i < 20; i++) {
-          recvpkt[packet.seqnum].payload[i] = packet.payload[i];
-        }
+        for (i=0; i < 20; i++) 
+        recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
       }
       
       while (received[expectedseqnum]) {
-        tolayer5(B, recv_buffer[expectedseqnum].payload);
+        tolayer5(B, packet.payload);
         received[expectedseqnum] = false;
         expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
       }
