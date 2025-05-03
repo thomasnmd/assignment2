@@ -94,7 +94,7 @@ void A_output(struct msg message)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
     tolayer3 (A, sendpkt);
     windowcount++;
-    starttimer(A, 1.0);
+    starttimer(A, RTT);
     /* get next sequence number, wrap back to 0 */
     A_nextseqnum = (A_nextseqnum + 1) % SEQSPACE;  
   }
@@ -144,16 +144,18 @@ void A_timerinterrupt(void)
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
 
-  for(i=0; i<wincount; i++) {
-    if (!acked[buffer[windowfirst].seqnum]) {
-      if (TRACE > 0)
-          printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
-      tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
+  for(i=0; i<SEQSPACE; i++) {
+    if (!acked[i]) {
+      int distance = (i - windowfirst + SEQSPACE) % SEQSPACE;
+      if (distance < windowcount) {
+        if (TRACE > 0)
+          printf ("---A: resending packet %d\n",  buffer[i].seqnum);
+      tolayer3(A,buffer[i]);
       packets_resent++;
+      }
     }
-    
-    
   }
+  if (windowcount > 0)
   starttimer(A,RTT);
 }       
 
