@@ -118,7 +118,7 @@ void A_input(struct pkt packet)
   if (!IsCorrupted(packet)) {
     if (TRACE > 0)
       printf("----A: uncorrupted ACK %d is received\n",packet.acknum);
-    if (!ACKed[packet.acknum]){
+    if (!acked[packet.acknum]){
       if (TRACE > 0)
         printf("----A: ACK %d is not a duplicate\n",packet.acknum);
         }
@@ -126,7 +126,7 @@ void A_input(struct pkt packet)
       acked[packet.acknum] = true;
 
       if (packet.acknum == buffer[windowfirst].seqnum) {
-        while (wincount  > 0 && acked[buffer[windowfirst].seqnum]) {
+        while (windowcount  > 0 && acked[buffer[windowfirst].seqnum]) {
           windowfirst = (windowfirst + 1) % WINDOWSIZE;
           windowcount--;
         }
