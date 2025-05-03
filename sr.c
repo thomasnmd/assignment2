@@ -94,6 +94,7 @@ void A_output(struct msg message)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
     tolayer3 (A, sendpkt);
     windowcount++;
+
     if (windowcount == 1) {
       starttimer(A, RTT);
   }
@@ -120,6 +121,7 @@ void A_input(struct pkt packet)
       printf("----A: uncorrupted ACK %d is received\n",packet.acknum);
     total_ACKs_received++;
     acked[packet.acknum] = true;
+
     /*check if wincount bigger than the next*/
     while (windowcount > 0 && acked[windowfirst]) {
       if (TRACE > 0) 
@@ -151,7 +153,7 @@ void A_timerinterrupt(void)
     }
   
   if (windowcount > 0)
-  starttimer(A,RTT);
+    starttimer(A,RTT);
 }       
 
 
