@@ -215,43 +215,26 @@ void B_input(struct pkt packet)
         expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
       }
 
-    if (in_window) {
-      /* Store the packet and mark as received */
-      recv_buffer[packet.seqnum] = packet;
-      received[packet.seqnum] = true;
-
-      /* Deliver all in-order packets from expectedseqnum */
-
-
-      /* Send ACK for this packet */
       sendpkt.acknum = packet.seqnum;
-    } else {
+      sendpkt.seqnum = NOTINUSE;
+
+      for ( i=0; i<20 ; i++ )    
+      sendpkt.payload[i] = '0';   
+      /* Send ACK for this packet */
+      sendpkt.checksum = ComputeChecksum(sendpkt);
+      tolayer3(B,sendpkt);
+     else 
       /* Packet is outside window: discard but resend ACK for last valid */
       if (TRACE > 0)
         printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
-      last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
-      sendpkt.acknum = last_ack;
-    }
-  } else {
-    /* Packet is corrupted: send duplicate ACK */
-    if (TRACE > 0)
-      printf("----B: packet corrupted, sending duplicate ACK\n");
-    last_ack = (expectedseqnum == 0) ? SEQSPACE - 1 : expectedseqnum - 1;
-    sendpkt.acknum = last_ack;
-  }
 
-  /* create packet */
-  sendpkt.seqnum = 0;
     
-  /* we don't have any data to send.  fill payload with 0's */
-  for ( i=0; i<20 ; i++ ) 
-    sendpkt.payload[i] = '0';  
-
+ 
   /* computer checksum */
   sendpkt.checksum = ComputeChecksum(sendpkt); 
-
   /* send out packet */
   tolayer3 (B, sendpkt);
+  }
 }
 
 /* the following routine will be called once (only) before any other */
