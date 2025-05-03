@@ -198,29 +198,30 @@ void B_input(struct pkt packet)
   /* Check if packet is not corrupted */
   if (!IsCorrupted(packet)) {
 
-    /* Check if packet is within the receive window */
-    int in_window = 0;
-    if (expectedseqnum + WINDOWSIZE < SEQSPACE) {
-      in_window = (packet.seqnum >= expectedseqnum && packet.seqnum < expectedseqnum + WINDOWSIZE);
-    } else {
-      in_window = (packet.seqnum >= expectedseqnum || packet.seqnum < (expectedseqnum + WINDOWSIZE) % SEQSPACE);
-    }
-
-    if (in_window) {
       if (TRACE > 0)
         printf("----B: packet %d correctly received (within window), sending ACK\n", packet.seqnum);
       packets_received++;
 
-      /* Store the packet and mark as received */
-      recv_buffer[packet.seqnum] = packet;
-      received[packet.seqnum] = true;
-
-      /* Deliver all in-order packets from expectedseqnum */
+      if (received[packet.seqnum] == false) {
+        received[packets.seqnum] == true
+        for (i=0; i < 20; i++) {
+          recvpkt [packet.seqnum].payload[i] = packet.payload[i];
+        }
+      }
+      
       while (received[expectedseqnum]) {
         tolayer5(B, recv_buffer[expectedseqnum].payload);
         received[expectedseqnum] = false;
         expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
       }
+
+    if (in_window) {
+      /* Store the packet and mark as received */
+      recv_buffer[packet.seqnum] = packet;
+      received[packet.seqnum] = true;
+
+      /* Deliver all in-order packets from expectedseqnum */
+
 
       /* Send ACK for this packet */
       sendpkt.acknum = packet.seqnum;
