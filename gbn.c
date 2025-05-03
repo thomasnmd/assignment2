@@ -169,15 +169,16 @@ void A_timerinterrupt(void)
 
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
-    if (!acked[windowfirst]) {
-      if (TRACE > 0)
-        printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
 
-      tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
-      packets_resent++;
-    }
-    if (windowcount > 0)
-    starttimer(A, RTT);
+  for(i=0; i<windowcount; i++) {
+
+    if (TRACE > 0)
+      printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
+
+    tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
+    packets_resent++;
+    if (i==0) starttimer(A,RTT);
+  }
 }       
 
 

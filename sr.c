@@ -78,22 +78,21 @@ void A_output(struct msg message)
     /* create packet */
     sendpkt.seqnum = A_nextseqnum;
     sendpkt.acknum = NOTINUSE;
-    for ( i=0; i<20 ; i++ ) 
+    for (i = 0; i < 20 ; i++ ) 
       sendpkt.payload[i] = message.data[i];
     sendpkt.checksum = ComputeChecksum(sendpkt); 
 
-  
     /* put packet in window buffer */
     /* windowlast will always be 0 for alternating bit; but not for GoBackN */
-    buffer[sendpkt.seqnum] = sendpkt;    
-    acked[sendpkt.seqnum] = false;                    /*still not be sure*/ 
+    windowlast = (windowlast + 1) % WINDOWSIZE; 
+    buffer[windowlast] = sendpkt;
+    windowcount++;
 
 
     /* send out packet */
     if (TRACE > 0)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
     tolayer3 (A, sendpkt);
-    windowcount++;
 
     if (windowcount == 1) {
       starttimer(A, RTT);
@@ -119,21 +118,26 @@ void A_input(struct pkt packet)
   if (!IsCorrupted(packet)) {
     if (TRACE > 0)
       printf("----A: uncorrupted ACK %d is received\n",packet.acknum);
-    total_ACKs_received++;
-    acked[packet.acknum] = true;
+    if (!ACKed[packet.acknum]){
+      if (TRACE > 0)
+        printf("----A: ACK %d is not a duplicate\n",packet.acknum);
+        }
+      new_ACKs++;  
+      acked[packet.acknum] = true;
+
+      if (packet.acknum == buffer[windowfirst].seqnum) {
+        while (wincount  > 0 && acked[buffer[windowfirst].seqnum]) {
+          windowfirst = (windowfirst + 1) % WINDOWSIZE;
+          windowcount--;
+        }
+        stoptimer(A);
+        if (windowcount > 0) 
+        starttimer(A, RTT);
+      }
 
     /*check if wincount bigger than the next*/
-    while (windowcount > 0 && acked[windowfirst]) {
-      if (TRACE > 0) 
-        printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);
-      acked[windowfirst] = false;  
-      windowfirst = (windowfirst + 1) % SEQSPACE;  
-      windowcount--;                               
-    }
-    stoptimer(A);
-    if (windowcount > 0) {
-      starttimer(A, RTT);
-    }
+    else if (TRACE > 0) 
+        printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);                          
   }
   else if (TRACE > 0)
       printf ("----A: corrupted ACK is received, do nothing!\n");
@@ -145,13 +149,10 @@ void A_timerinterrupt(void)
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
 
-   if (!acked[windowfirst]) {
       if (TRACE > 0)
           printf ("---A: resending packet %d\n",  buffer[windowfirst].seqnum);
       tolayer3(A,buffer[windowfirst]);
       packets_resent++;
-    }
-  
   if (windowcount > 0)
     starttimer(A,RTT);
 }       
