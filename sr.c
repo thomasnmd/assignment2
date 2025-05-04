@@ -185,7 +185,7 @@ void A_init(void)
 static int expectedseqnum; /* the sequence number expected next by the receiver */
 static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
 static struct pkt recv_buffer[SEQSPACE]; /*buffer to store out-of-order packets*/
-static bool is_new_packet[SEQSPACE];    /*track which seqnums have been received*/
+static bool received[SEQSPACE];    /*track which seqnums have been received*/
 
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
@@ -214,7 +214,7 @@ void B_input(struct pkt packet)
       break;
   
     tolayer5(B, recv_buffer[expectedseqnum].payload);
-    received[expectedseqnum] = true;
+    received[expectedseqnum] = false;
     expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
     }
   
