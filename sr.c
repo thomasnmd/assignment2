@@ -185,7 +185,7 @@ void A_init(void)
 static int expectedseqnum; /* the sequence number expected next by the receiver */
 static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
 static struct pkt recv_buffer[SEQSPACE]; /*buffer to store out-of-order packets*/
-static bool received[SEQSPACE];    /*track which seqnums have been received*/
+static bool is_new_packet;[SEQSPACE];    /*track which seqnums have been received*/
 
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
@@ -195,10 +195,11 @@ void B_input(struct pkt packet)
   int i;
 
   /* Check if packet is not corrupted */
-  if (!IsCorrupted(packet)) {
+  if IsCorrupted(packet) return;
 
     if (TRACE > 0)
       printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
+    
     packets_received++;
 
     if (received[packet.seqnum] == false) {
@@ -223,7 +224,7 @@ void B_input(struct pkt packet)
     sendpkt.checksum = ComputeChecksum(sendpkt); 
       /* send out packet */
     tolayer3 (B, sendpkt);
-  }
+  
 }
 
 
