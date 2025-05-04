@@ -218,9 +218,8 @@ void B_input(struct pkt packet)
     expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
     }
   
-
-  sendpkt.acknum = packet.seqnum;
   sendpkt.seqnum = NOTINUSE;
+  sendpkt.acknum = packet.seqnum;
 
   for ( i=0; i<20 ; i++ )    
     sendpkt.payload[i] = '0';   
