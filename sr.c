@@ -218,7 +218,7 @@ void B_input(struct pkt packet)
     for ( i=0; i<20 ; i++ )    
       sendpkt.payload[i] = '0';   
       /* computer checksum */
-      
+
     sendpkt.checksum = ComputeChecksum(sendpkt); 
       /* send out packet */
     tolayer3 (B, sendpkt);
@@ -231,12 +231,8 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
-  int i;
   expectedseqnum = 0;
-  B_nextseqnum = 1;
-    for (i = 0; i < SEQSPACE; i++) {
-    received[i] = false;
-  }
+
 }
 
 
