@@ -132,11 +132,11 @@ void A_input(struct pkt packet)
         }
         stoptimer(A);
         if (windowcount > 0) 
-        starttimer(A, RTT);
+          starttimer(A, RTT);
       }
 
     /*check if wincount bigger than the next*/
-    else if (TRACE > 0) 
+      else if (TRACE > 0) 
         printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);                          
   }
   else if (TRACE > 0)
@@ -148,11 +148,11 @@ void A_timerinterrupt(void)
 {
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
-      if (TRACE > 0)
-          printf ("---A: resending packet %d\n",  buffer[windowfirst].seqnum);
+  if (TRACE > 0)
+      printf ("---A: resending packet %d\n", buffer[windowfirst].seqnum);
     
-    tolayer3(A,buffer[windowfirst]);
-    packets_resent++;
+  tolayer3(A,buffer[windowfirst]);
+  packets_resent++;
 
   if (windowcount > 0)
     starttimer(A,RTT);
