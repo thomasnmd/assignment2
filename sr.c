@@ -196,7 +196,7 @@ void B_input(struct pkt packet)
   if (!IsCorrupted(packet)) {
 
       if (TRACE > 0)
-        printf("----B: packet %d correctly received, send ACK\n", packet.seqnum);
+        printf("----B: packet %d is correctly received, send ACK\n", packet.seqnum);
       packets_received++;
 
       if (received[packet.seqnum] == false) {
