@@ -196,28 +196,31 @@ void B_input(struct pkt packet)
   int i;
 
   /* Check if packet is not corrupted */
-  if (IsCorrupted(packet)) return;
-
+  if (IsCorrupted(packet)) {
+    return;
+  }
+  /**/
   if (TRACE > 0)
     printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
-
+  /*Record the number of received data packets */
   packets_received++;
 
+  /*if the packet arrive first time*/
   if (!received[packet.seqnum]) {
     received[packet.seqnum] = true;
 
     for (i = 0; i < 20; ++i)
       recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
   }
-      
+  /*Check whether there are packages in sequence that can be submitted to the upper layer*/
   while (true) {
     if (!received[expectedseqnum])
       break;
-  
+  }
     tolayer5(B, recv_buffer[expectedseqnum].payload);
     received[expectedseqnum] = false;
     expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
-    }
+    
   
   sendpkt.seqnum = NOTINUSE;
   sendpkt.acknum = packet.seqnum;
