@@ -199,20 +199,25 @@ void B_input(struct pkt packet)
 
     if (TRACE > 0)
       printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
-    
+
     packets_received++;
 
-    if (received[packet.seqnum] == false) {
+    if (!received[packet.seqnum]) {
       received[packet.seqnum] = true;
-      for (i=0; i < 20; i++) 
+
+      for (i = 0; i < 20; ++i)
         recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
     }
       
-    while (received[expectedseqnum]) {
-      tolayer5(B,recv_buffer[expectedseqnum].payload);
-      received[expectedseqnum] = false;
+    while (true) {
+      if (!received[expectedseqnum])
+        break;
+  
+      tolayer5(B, recv_buffer[expectedseqnum].payload);
+      received[expectedseqnum] = true;
       expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
     }
+  
 
     sendpkt.acknum = packet.seqnum;
     sendpkt.seqnum = NOTINUSE;
@@ -234,7 +239,6 @@ void B_input(struct pkt packet)
 void B_init(void)
 {
   expectedseqnum = 0;
-
 }
 
 
