@@ -200,15 +200,14 @@ void B_input(struct pkt packet)
       printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
     packets_received++;
 
-    if (!received[packet.seqnum]) {
+    if (received[packet.seqnum] == false) {
       received[packet.seqnum] = true;
-      for (i = 0; i < 20; i++) {
+      for (i=0; i < 20; i++) 
         recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
-      }
     }
       
     while (received[expectedseqnum]) {
-      tolayer5(B, packet.payload);
+      tolayer5(B, B, recv_buffer[expectedseqnum].payload);
       received[expectedseqnum] = false;
       expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
     }
@@ -232,7 +231,6 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
-  int i;
   expectedseqnum = 0;
 
 }
