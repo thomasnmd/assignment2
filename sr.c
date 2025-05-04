@@ -138,7 +138,7 @@ void A_input(struct pkt packet)
     }
     /*check if wincount bigger than the next*/
       else if (TRACE > 0) 
-        printf(printf ("----A: duplicate ACK received, do nothing!\n"););                          
+        printf("----A: duplicate ACK received, do nothing!\n");                          
   } 
   else if (TRACE > 0)
       printf ("----A: corrupted ACK is received, do nothing!\n");
@@ -166,7 +166,6 @@ void A_timerinterrupt(void)
 /* entity A routines are called. You can use it to do any initialization */
 void A_init(void)
 {
-  int i;  
   /* initialise A's window, buffer and sequence number */
   A_nextseqnum = 0;  /* A starts with seq num 0, do not change this */
   windowfirst = 0;
