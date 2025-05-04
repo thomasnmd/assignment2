@@ -134,11 +134,11 @@ void A_input(struct pkt packet)
         if (windowcount > 0) 
           starttimer(A, RTT);
       }
-
+    }
     /*check if wincount bigger than the next*/
       else if (TRACE > 0) 
         printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);                          
-  }
+  
   else if (TRACE > 0)
       printf ("----A: corrupted ACK is received, do nothing!\n");
 }
