@@ -153,7 +153,7 @@ void A_timerinterrupt(void)
   if (TRACE > 0)
       printf ("---A: resending packet %d\n", buffer[windowfirst].seqnum);
     
-  tolayer3(A,buffer[windowfirst]);
+  tolayer3(A, buffer[windowfirst]);
   packets_resent++;
 
   if (windowcount > 0)
@@ -196,31 +196,32 @@ void B_input(struct pkt packet)
   /* Check if packet is not corrupted */
   if (!IsCorrupted(packet)) {
 
-      if (TRACE > 0)
-        printf("----B: packet %d is correctly received, send ACK\n", packet.seqnum);
-      packets_received++;
+    if (TRACE > 0)
+      printf("----B: packet %d is correctly received, send ACK\n", packet.seqnum);
+    packets_received++;
 
-      if (received[packet.seqnum] == false) {
-        received[packet.seqnum] = true;
-        for (i=0; i < 20; i++) 
-          recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
-      }
+    if (received[packet.seqnum] == false) {
+      received[packet.seqnum] = true;
+      for (i=0; i < 20; i++) 
+        recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
+    }
       
-      while (received[expectedseqnum]) {
-        tolayer5(B, packet.payload);
-        received[expectedseqnum] = false;
-        expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
-      }
+    while (received[expectedseqnum]) {
+      tolayer5(B, packet.payload);
+      received[expectedseqnum] = false;
+      expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
+    }
 
-      sendpkt.acknum = packet.seqnum;
-      sendpkt.seqnum = NOTINUSE;
+    sendpkt.acknum = packet.seqnum;
+    sendpkt.seqnum = NOTINUSE;
 
-      for ( i=0; i<20 ; i++ )    
-        sendpkt.payload[i] = '0';   
+    for ( i=0; i<20 ; i++ )    
+      sendpkt.payload[i] = '0';   
       /* computer checksum */
-      sendpkt.checksum = ComputeChecksum(sendpkt); 
+      
+    sendpkt.checksum = ComputeChecksum(sendpkt); 
       /* send out packet */
-      tolayer3 (B, sendpkt);
+    tolayer3 (B, sendpkt);
   }
 }
 
