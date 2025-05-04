@@ -215,11 +215,7 @@ void B_input(struct pkt packet)
       sendpkt.seqnum = NOTINUSE;
 
       for ( i=0; i<20 ; i++ )    
-      sendpkt.payload[i] = '0';   
-      /* Packet is outside window: discard but resend ACK for last valid */
-      if (TRACE > 0)
-        printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
-
+        sendpkt.payload[i] = '0';   
       /* computer checksum */
       sendpkt.checksum = ComputeChecksum(sendpkt); 
       /* send out packet */
