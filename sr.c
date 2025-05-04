@@ -174,9 +174,6 @@ void A_init(void)
 		   */
   windowcount = 0;
 
-  for (i = 0; i < SEQSPACE; i++) {
-    acked[i] = false;             
-  }
 }
 
 
