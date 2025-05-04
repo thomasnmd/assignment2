@@ -118,10 +118,11 @@ void A_input(struct pkt packet)
   if (!IsCorrupted(packet)) {
     if (TRACE > 0)
       printf("----A: uncorrupted ACK %d is received\n" , packet.acknum);
-    if (!acked[packet.acknum]){
+    if (!acked[packet.acknum]) {
+
       if (TRACE > 0)
         printf("----A: ACK %d is not a duplicate\n" , packet.acknum);
-        }
+        
       new_ACKs++;  
       acked[packet.acknum] = true;
 
@@ -137,10 +138,11 @@ void A_input(struct pkt packet)
     }
     /*check if wincount bigger than the next*/
       else if (TRACE > 0) 
-        printf("A: sliding window, packet %d acknowledged\n", buffer[windowfirst].seqnum);                          
-  
+        printf(printf ("----A: duplicate ACK received, do nothing!\n"););                          
+  } 
   else if (TRACE > 0)
       printf ("----A: corrupted ACK is received, do nothing!\n");
+    
 }
 
 /* called when A's timer goes off */
