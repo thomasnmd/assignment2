@@ -150,6 +150,7 @@ void A_timerinterrupt(void)
 {
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
+    if (windowcount > 0) {
   if (TRACE > 0)
       printf ("---A: resending packet %d\n", buffer[windowfirst].seqnum);
     
@@ -158,6 +159,8 @@ void A_timerinterrupt(void)
 
   if (windowcount > 0)
     starttimer(A,RTT);
+    }
+
 }       
 
 
