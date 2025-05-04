@@ -209,7 +209,7 @@ void B_input(struct pkt packet)
     while (received[expectedseqnum]) {
       tolayer5(B, packet.payload);
       received[expectedseqnum] = false;
-      expectedseqnum = (expectedseqnum + 1) % wincount;
+      expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
     }
 
     sendpkt.acknum = packet.seqnum;
