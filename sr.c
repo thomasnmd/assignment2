@@ -133,7 +133,7 @@ void A_input(struct pkt packet)
         }
         stoptimer(A);
         if (windowcount > 0) 
-          starttimer(A, RTT);
+          starttimer(B, RTT);
       }
     }
     /*check if wincount bigger than the next*/
