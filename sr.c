@@ -78,7 +78,7 @@ void A_output(struct msg message)
     /* create packet */
     sendpkt.seqnum = A_nextseqnum;
     sendpkt.acknum = NOTINUSE;
-    
+
     for (i = 0; i < 20 ; i++ ) 
     sendpkt.payload[i] = message.data[i];
     sendpkt.checksum = ComputeChecksum(sendpkt); 
@@ -96,7 +96,7 @@ void A_output(struct msg message)
     tolayer3 (A, sendpkt);
 
     if (windowcount == 1) {
-      starttimer(A, RTT);
+    starttimer(A, RTT);
   }
     /* get next sequence number, wrap back to 0 */
     A_nextseqnum = (A_nextseqnum + 1) % SEQSPACE;  
