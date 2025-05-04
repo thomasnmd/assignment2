@@ -202,7 +202,7 @@ void B_input(struct pkt packet)
       if (received[packet.seqnum] == false) {
         received[packet.seqnum] = true;
         for (i=0; i < 20; i++) 
-        recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
+          recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
       }
       
       while (received[expectedseqnum]) {
