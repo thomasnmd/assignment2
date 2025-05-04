@@ -133,7 +133,7 @@ void A_input(struct pkt packet)
         }
         stoptimer(A);
         if (windowcount > 0) 
-          starttimer(B, RTT);
+          starttimer(A, RTT);
       }
     }
     /*check if wincount bigger than the next*/
@@ -182,7 +182,7 @@ void A_init(void)
 /********* Receiver (B)  variables and procedures ************/
 
 static int expectedseqnum; /* the sequence number expected next by the receiver */
-/*static int B_nextseqnum; */  /* the sequence number for the next packets sent by B */
+static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
 static struct pkt recv_buffer[SEQSPACE]; /*buffer to store out-of-order packets*/
 static bool received[SEQSPACE];    /*track which seqnums have been received*/
 
@@ -200,10 +200,11 @@ void B_input(struct pkt packet)
       printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
     packets_received++;
 
-    if (received[packet.seqnum] == false) {
+    if (!received[packet.seqnum]) {
       received[packet.seqnum] = true;
-      for (i=0; i < 20; i++) 
+      for (i = 0; i < 20; i++) {
         recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
+      }
     }
       
     while (received[expectedseqnum]) {
@@ -231,6 +232,7 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
+  int i;
   expectedseqnum = 0;
 
 }
