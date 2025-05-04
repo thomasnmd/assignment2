@@ -209,8 +209,9 @@ void B_input(struct pkt packet)
   if (!received[packet.seqnum]) {
     received[packet.seqnum] = true;
 
-    for (i = 0; i < 20; ++i)
+    for (i = 0; i < 20; ++i) {
       recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
+    }
   }
   /*Check whether there are packages in sequence that can be submitted to the upper layer*/
   while (true) {
@@ -241,7 +242,12 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
+  int i;
   expectedseqnum = 0;
+  B_nextseqnum = 1;
+  for (i = 0; i < SEQSPACE; i++) {
+  received[i] = false;
+}
 }
 
 
