@@ -220,10 +220,10 @@ void B_input(struct pkt packet)
       if (TRACE > 0)
         printf("----B: packet %d outside window, sending duplicate ACK\n", packet.seqnum);
 
-  /* computer checksum */
-  sendpkt.checksum = ComputeChecksum(sendpkt); 
-  /* send out packet */
-  tolayer3 (B, sendpkt);
+      /* computer checksum */
+      sendpkt.checksum = ComputeChecksum(sendpkt); 
+      /* send out packet */
+      tolayer3 (B, sendpkt);
   }
 }
 
