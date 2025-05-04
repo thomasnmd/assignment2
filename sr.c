@@ -182,7 +182,7 @@ void A_init(void)
 /********* Receiver (B)  variables and procedures ************/
 
 static int expectedseqnum; /* the sequence number expected next by the receiver */
-static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
+/*static int B_nextseqnum; */  /* the sequence number for the next packets sent by B */
 static struct pkt recv_buffer[SEQSPACE]; /*buffer to store out-of-order packets*/
 static bool received[SEQSPACE];    /*track which seqnums have been received*/
 
