@@ -88,7 +88,6 @@ void A_output(struct msg message)
     buffer[windowlast] = sendpkt;
     windowcount++;
 
-
     /* send out packet */
     if (TRACE > 0)
       printf("Sending packet %d to layer 3\n", sendpkt.seqnum);
@@ -114,7 +113,6 @@ void A_output(struct msg message)
 */
 void A_input(struct pkt packet)
 {
-
   /* if received ACK is not corrupted */ 
   if (!IsCorrupted(packet)) {
     if (TRACE > 0)
