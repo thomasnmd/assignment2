@@ -190,36 +190,38 @@ void B_input(struct pkt packet)
 {
   struct pkt sendpkt;
   int i;
+  int seq = packet.seqnum;
+  int corrupted = IsCorrupted(packet);
 
-  /* Check if packet is not corrupted */
-  if (IsCorrupted(packet)) {
+  /* Ignore corrupted packets */
+  if (corrupted) {
     return;
   }
-  /**/
 
   if (TRACE > 0)
-    printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
-  /*Record the number of received data packets */
+    printf("----B: packet %d is correctly received, send ACK!\n", seq);
   packets_received++;
 
-  /*if the packet arrive first time*/
-  if (!received[packet.seqnum]) {
-    received[packet.seqnum] = true;
+  // If this packet hasn't been received before
+  if (received[seq] == false) {
+    received[seq] = true;
 
-    for (i = 0; i < 20; ++i) {
-      recv_buffer[packet.seqnum].payload[i] = packet.payload[i];
+    // Copy payload to buffer
+    int j;
+    for (j = 0; j < 20; j++) {
+      recv_buffer[seq].payload[j] = packet.payload[j];
     }
   }
-  /*Check whether there are packages in sequence that can be submitted to the upper layer*/
+      
   while (true) {
     if (!received[expectedseqnum])
       break;
-  }
+  
     tolayer5(B, recv_buffer[expectedseqnum].payload);
     received[expectedseqnum] = false;
     expectedseqnum = (expectedseqnum + 1) % SEQSPACE;
-    
-    
+    }
+  
   sendpkt.seqnum = NOTINUSE;
   sendpkt.acknum = packet.seqnum;
 
@@ -230,7 +232,6 @@ void B_input(struct pkt packet)
   sendpkt.checksum = ComputeChecksum(sendpkt); 
     /* send out packet */
   tolayer3 (B, sendpkt);
-  
 }
 
 
