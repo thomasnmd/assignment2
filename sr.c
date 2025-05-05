@@ -60,7 +60,6 @@ static struct pkt buffer[SEQSPACE];  /* array for storing packets waiting for AC
 static int windowfirst, windowlast;    /* array indexes of the first/last packet awaiting ACK */
 static int windowcount;                /* the number of packets currently awaiting an ACK */
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
-
 static bool acked[SEQSPACE];
 
 
@@ -213,6 +212,7 @@ void B_input(struct pkt packet)
     return;
   }
   /**/
+
   if (TRACE > 0)
     printf("----B: packet %d is correctly received, send ACK!\n", packet.seqnum);
   /*Record the number of received data packets */
@@ -255,12 +255,9 @@ void B_input(struct pkt packet)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
-  int i;
+
   expectedseqnum = 0;
-  B_nextseqnum = 1;
-  for (i = 0; i < SEQSPACE; i++) {
-  received[i] = false;
-}
+
 }
 
 
