@@ -173,7 +173,6 @@ void A_init(void)
 		     so initially this is set to -1
 		   */
   windowcount = 0;
-
 }
 
 
